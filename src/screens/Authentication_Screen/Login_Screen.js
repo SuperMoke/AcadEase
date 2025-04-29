@@ -25,6 +25,7 @@ const LoginScreen = ({ navigation }) => {
         console.log("Login successful:", result.user);
       } else {
         console.error("Login failed:", result.message);
+
         setError(result.message);
         Alert.alert(
           "Login Failed",

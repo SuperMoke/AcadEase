@@ -1,10 +1,37 @@
-import PocketBase from "pocketbase";
+import PocketBase, { AsyncAuthStore } from "pocketbase";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// Create AsyncAuthStore for persistent login
+const asyncAuthStore = new AsyncAuthStore({
+  save: async (serialized) => AsyncStorage.setItem("pb_auth", serialized),
+  initial: null, // Will be set in initialization
+  clear: async () => AsyncStorage.removeItem("pb_auth"),
+});
 
 // Create a singleton PocketBase client instance
-const pb = new PocketBase("https://acadease.fly.dev"); // Replace with your PocketBase URL
+let pb = null;
 
-// Export the client instance for direct access when needed
-export const pocketbaseClient = pb;
+export const initializePocketBase = async () => {
+  try {
+    // Get initial auth data from AsyncStorage
+    const initialAuth = await AsyncStorage.getItem("pb_auth");
+    asyncAuthStore.initial = initialAuth;
+
+    // Initialize PocketBase with the async store
+    pb = new PocketBase("https://acadease.fly.dev", asyncAuthStore);
+
+    console.log("PocketBase initialized with AsyncStorage");
+    return pb;
+  } catch (error) {
+    console.error("Failed to initialize PocketBase:", error);
+    // Initialize without previous auth as fallback
+    pb = new PocketBase("https://acadease.fly.dev");
+    return pb;
+  }
+};
+
+// Export the client instance getter
+export const getPocketbaseClient = () => pb;
 
 // Local error handler for PocketBase errors
 const handlePocketBaseError = (error) => {

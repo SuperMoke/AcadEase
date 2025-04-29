@@ -7,13 +7,6 @@ import Header from "../../components/Header";
 const HomeScreen = ({ navigation }) => {
   const theme = useTheme();
 
-  const handleLogout = () => {
-    // Add logout logic here
-    console.log("Logout attempt");
-    // Navigate back to Login screen on logout
-    navigation.replace("Login");
-  };
-
   const styles = StyleSheet.create({
     container: {
       flex: 1,

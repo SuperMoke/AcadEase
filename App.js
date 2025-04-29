@@ -16,13 +16,11 @@ import AskAiScreen from "./src/screens/User_Screen/AskAI_Screen";
 
 // Import auth service
 import { authService, pocketbaseClient } from "./src/utils/pocketbaseService";
-
-// Prevent automatic splash screen hiding
-SplashScreen.preventAutoHideAsync();
+import { initializePocketBase } from "./src/utils/pocketbaseService";
+import ErrorBoundary from "./src/components/ErrorBoundary"; // Import ErrorBoundary
 
 const Stack = createStackNavigator();
 
-// Stack for authenticated users
 const AppStack = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -33,7 +31,6 @@ const AppStack = () => {
   );
 };
 
-// Stack for unauthenticated users
 const AuthStack = () => {
   return (
     <Stack.Navigator
@@ -47,76 +44,66 @@ const AuthStack = () => {
 };
 
 export default function App() {
+  const [pb, setPb] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [appIsReady, setAppIsReady] = useState(false);
-
-  // Function to check and update auth state
-  const checkAuthState = () => {
-    const isAuth = authService.isAuthenticated();
-    setIsAuthenticated(isAuth);
-    return isAuth;
-  };
 
   useEffect(() => {
-    async function prepare() {
+    async function initialize() {
       try {
-        // Check initial auth state when the app loads
-        checkAuthState();
-      } catch (e) {
-        console.warn(e);
-      } finally {
-        // Set app as ready
-        setAppIsReady(true);
+        // Initialize PocketBase with AsyncStorage
+        const client = await initializePocketBase();
+        setPb(client);
+
+        // Set up auth change listener
+        const unsubscribe = client.authStore.onChange((token, model) => {
+          console.log("Auth state changed:", !!model);
+          setIsAuthenticated(!!model);
+          setIsLoading(false);
+        }, true);
+
+        return () => unsubscribe();
+      } catch (error) {
+        console.error("Initialization error:", error);
         setIsLoading(false);
       }
     }
-    prepare();
 
-    // Set up auth state change listener
-    const unsubscribe = pocketbaseClient.authStore.onChange(() => {
-      checkAuthState();
-    });
-
-    // Clean up the listener
-    return () => {
-      unsubscribe();
-    };
+    initialize();
   }, []);
 
-  // Handle hiding the splash screen only when ready to render
-  const onLayoutRootView = useCallback(async () => {
-    if (appIsReady) {
-      await SplashScreen.hideAsync();
-    }
-  }, [appIsReady]);
+  if (isLoading) {
+    // Show loading indicator until PocketBase confirms auth state
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color={AcadEaseTheme.colors.primary} />
+      </View>
+    );
+  }
 
-  // Always render the app, but conditionally show loading indicator
   return (
-    <PaperProvider theme={AcadEaseTheme}>
-      <NavigationContainer onReady={onLayoutRootView}>
-        <StatusBar style="auto" />
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              size="large"
-              color={AcadEaseTheme.colors.primary}
-            />
-          </View>
-        ) : isAuthenticated ? (
-          <AppStack />
-        ) : (
-          <AuthStack />
-        )}
-      </NavigationContainer>
-    </PaperProvider>
+    <ErrorBoundary>
+      <PaperProvider theme={AcadEaseTheme}>
+        <NavigationContainer>
+          {isAuthenticated ? <AppStack /> : <AuthStack />}
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </PaperProvider>
+    </ErrorBoundary>
   );
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loaderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: AcadEaseTheme.colors.background, // Optional: Match theme background
   },
 });

@@ -4,7 +4,7 @@
     "slug": "AcadEase",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/Logo.png",
+    "icon": "./assets/Icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/Logo.png",
@@ -23,11 +23,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/Icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.macoyskieee.AcadEase",
-      "permissions": [],
+      "permissions": ["android.permission.CAMERA"],
       "softwareKeyboardLayoutMode": "resize"
     },
     "web": {

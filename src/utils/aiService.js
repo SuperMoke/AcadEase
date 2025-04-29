@@ -2,8 +2,6 @@ import axios from "axios";
 
 import { Buffer } from "buffer";
 
-// --- Configuration ---
-// TODO: Move API Keys to environment variables or a secure config service
 const OPENROUTER_API_KEY =
   "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";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -20,10 +18,9 @@ const transcribeAudioWithAssemblyAI = async (base64Audio) => {
   let uploadUrl;
   let transcriptId;
 
-  // 1. Upload Audio to AssemblyAI
   try {
     console.log("Uploading audio to AssemblyAI...");
-    // Convert base64 to Buffer
+
     const audioBuffer = Buffer.from(base64Audio, "base64");
 
     const uploadResponse = await axios.post(
@@ -32,10 +29,10 @@ const transcribeAudioWithAssemblyAI = async (base64Audio) => {
       {
         headers: {
           Authorization: ASSEMBLYAI_API_KEY,
-          // Let AssemblyAI detect the type, or specify if known e.g., 'audio/mp3'
+
           "Content-Type": "application/octet-stream",
         },
-        timeout: 60000, // Example: 60 second timeout for upload
+        timeout: 60000,
       }
     );
 
