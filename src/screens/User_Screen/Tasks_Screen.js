@@ -12,6 +12,7 @@ import {
   List, // Import List
   Divider, // Import Divider
   ActivityIndicator, // Import ActivityIndicator
+  SegmentedButtons,
 } from "react-native-paper";
 import Header from "../../components/Header"; // Assuming you want the same header
 import ManualInputModal from "../../components/ManualInputModal"; // Import the modal component
@@ -19,6 +20,7 @@ import VoiceInputModal from "../../components/VoiceInputModal"; // Import the ne
 import { authService, taskService } from "../../utils/pocketbaseService"; // Import taskService (will create this next)
 import TextRecognitionModal from "../../components/TextRecognitionModal"; // Import our new component
 import { format } from "date-fns"; // Add this import for date formatting
+import GoogleClassroomModal from "../../components/GoogleClassroomModal";
 
 const TasksScreen = ({ navigation }) => {
   const theme = useTheme();
@@ -28,6 +30,8 @@ const TasksScreen = ({ navigation }) => {
   const [tasks, setTasks] = useState([]); // Add state for tasks
   const [fabOpen, setFabOpen] = useState(false); // State for FAB Group
   const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const [value, setValue] = React.useState("");
+  const [classroomModalVisible, setClassroomModalVisible] = useState(false);
 
   // Fetch tasks when the component mounts
   useEffect(() => {
@@ -66,6 +70,9 @@ const TasksScreen = ({ navigation }) => {
 
   const showTextRecModal = () => setTextRecModalVisible(true);
   const hideTextRecModal = () => setTextRecModalVisible(false);
+
+  const showClassroomModal = () => setClassroomModalVisible(true);
+  const hideClassroomModal = () => setClassroomModalVisible(false);
 
   // Function to handle saving a task from the modal and PocketBase
   const handleSaveTask = async (newTaskData) => {
@@ -268,6 +275,33 @@ const TasksScreen = ({ navigation }) => {
     </Card>
   );
 
+  // Add this function to filter and sort tasks based on the selected segment
+  const getFilteredAndSortedTasks = () => {
+    // First filter by priority if needed
+    let filteredTasks = tasks;
+    if (value === "High" || value === "Low") {
+      filteredTasks = tasks.filter((task) => task.priority === value);
+    }
+
+    // Then sort by due date (closest first)
+    return filteredTasks.sort((a, b) => {
+      // If both tasks have deadlines, sort by closest date
+      if (a.deadline && b.deadline) {
+        return new Date(a.deadline) - new Date(b.deadline);
+      }
+      // If only a has a deadline, prioritize it
+      else if (a.deadline) {
+        return -1;
+      }
+      // If only b has a deadline, prioritize it
+      else if (b.deadline) {
+        return 1;
+      }
+      // If neither has a deadline, maintain current order
+      return 0;
+    });
+  };
+
   return (
     <View style={styles.container}>
       <Header />
@@ -290,6 +324,12 @@ const TasksScreen = ({ navigation }) => {
         onSave={handleSaveTask}
       />
 
+      <GoogleClassroomModal
+        visible={classroomModalVisible}
+        onDismiss={hideClassroomModal}
+        onSave={handleSaveTask}
+      />
+
       {/* Placeholder Modals for future features */}
       {/* <VoiceInputModal visible={voiceModalVisible} onDismiss={hideVoiceModal} onSave={handleSaveTask} /> */}
       {/* <TextRecognitionModal visible={textRecModalVisible} onDismiss={hideTextRecModal} onSave={handleSaveTask} /> */}
@@ -298,6 +338,37 @@ const TasksScreen = ({ navigation }) => {
         <Text variant="headlineLarge" style={styles.title}>
           Manage Tasks
         </Text>
+
+        <View style={styles.segmentedButtonContainer}>
+          <SegmentedButtons
+            value={value}
+            onValueChange={setValue}
+            buttons={[
+              {
+                value: "All",
+                label: "All",
+                icon: "filter-variant",
+              },
+              {
+                value: "High",
+                label: "High",
+                icon: "arrow-up-bold-outline",
+              },
+              {
+                value: "Low",
+                label: "Low",
+                icon: "arrow-down-bold-outline",
+              },
+            ]}
+            style={{ marginBottom: 16 }}
+            theme={{
+              colors: {
+                secondaryContainer: "#0066FF",
+                onSecondaryContainer: "white",
+              },
+            }}
+          />
+        </View>
 
         {/* Task List */}
         <View style={styles.taskListContainer}>
@@ -310,16 +381,18 @@ const TasksScreen = ({ navigation }) => {
             />
           ) : (
             <FlatList
-              data={tasks}
+              data={getFilteredAndSortedTasks()}
               renderItem={renderTaskItem}
               keyExtractor={(item) => item.id}
               ListEmptyComponent={() => (
                 <Text style={styles.emptyListText}>
-                  No tasks yet. Add one using the '+' button!
+                  {value !== "All"
+                    ? `No ${value} priority tasks found.`
+                    : "No tasks yet. Add one using the '+' button!"}
                 </Text>
               )}
               contentContainerStyle={
-                tasks.length === 0
+                getFilteredAndSortedTasks().length === 0
                   ? { flexGrow: 1, justifyContent: "center" }
                   : {}
               }
@@ -355,6 +428,13 @@ const TasksScreen = ({ navigation }) => {
               onPress: showTextRecModal,
               small: false,
               fabStyle: { backgroundColor: theme.colors.primary }, // Custom background colo
+            },
+            {
+              icon: "google-classroom",
+              label: "Google Classroom",
+              onPress: showClassroomModal,
+              small: false,
+              fabStyle: { backgroundColor: theme.colors.primary },
             },
           ]}
           onStateChange={({ open }) => setFabOpen(open)}

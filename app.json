@@ -2,6 +2,8 @@
   "expo": {
     "name": "AcadEase",
     "slug": "AcadEase",
+    "owner": "macoyskieee",
+    "scheme": "acadease",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/Icon.png",
@@ -11,6 +13,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -36,7 +39,9 @@
     "extra": {
       "eas": {
         "projectId": "1c73b888-7345-42fc-aeee-de82ac6d60f4"
-      }
+      },
+      "androidClientId":"1085136682515-sbrad8qg0hhmiadcs981ar2id8ad9eps.apps.googleusercontent.com",
+      "googleClientId": "1085136682515-mlilobrocafv3ftpu4q2cfeqk3rkeq0n.apps.googleusercontent.com"
     }
   }
 }

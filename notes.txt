@@ -1,0 +1,4 @@
+Google Clasroom Creds
+
+Client ID = 1052952079813-kjmcq00qh0m4rap1246ireev5gv9lbsa.apps.googleusercontent.com
+Client Secrte = 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

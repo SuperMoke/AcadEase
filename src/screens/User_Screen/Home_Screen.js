@@ -74,6 +74,16 @@ const HomeScreen = ({ navigation }) => {
           </View>
           <Text style={styles.menuItemText}>Ask Ai</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate("Calendar")}
+        >
+          <View style={styles.menuIcon}>
+            <Icon name="calendar" size={24} color={theme.colors.primary} />
+          </View>
+          <Text style={styles.menuItemText}>Calendar</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );

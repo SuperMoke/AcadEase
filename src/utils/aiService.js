@@ -3,9 +3,9 @@ import axios from "axios";
 import { Buffer } from "buffer";
 
 const OPENROUTER_API_KEY =
-  "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";
+  "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";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const OPENROUTER_MODEL = "meta-llama/llama-4-maverick:free"; // Or your preferred model
+const OPENROUTER_MODEL = "meta-llama/llama-4-maverick:free";
 
 const ASSEMBLYAI_API_KEY = "f2035da5685f446fabbadc40895da0da";
 const ASSEMBLYAI_API_BASE = "https://api.assemblyai.com/v2";

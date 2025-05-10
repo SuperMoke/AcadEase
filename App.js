@@ -13,6 +13,7 @@ import RegisterScreen from "./src/screens/Authentication_Screen/Register_Screen"
 import HomeScreen from "./src/screens/User_Screen/Home_Screen";
 import TasksScreen from "./src/screens/User_Screen/Tasks_Screen";
 import AskAiScreen from "./src/screens/User_Screen/AskAI_Screen";
+import CalendarScreen from "./src/screens/User_Screen/Calendar_Screen";
 
 // Import auth service
 import { authService, pocketbaseClient } from "./src/utils/pocketbaseService";
@@ -27,6 +28,7 @@ const AppStack = () => {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Tasks" component={TasksScreen} />
       <Stack.Screen name="AskAI" component={AskAiScreen} />
+      <Stack.Screen name="Calendar" component={CalendarScreen} />
     </Stack.Navigator>
   );
 };
